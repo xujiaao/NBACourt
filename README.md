@@ -2,6 +2,8 @@
 
 Demo of `android.graphics.Camera` - display a virtual NBA court in 3D. ( ͡° ͜ʖ ͡°)✧
 
+![screenshot.gif](doc/screenshot.gif)
+
 ----
 
 - The court floor image is [downloaded from si.com](https://www.si.com/nba/photo/2016/02/03/power-ranking-all-30-nba-floor-designs)

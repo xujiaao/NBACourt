@@ -37,16 +37,16 @@ class CourtActivity : AppCompatActivity() {
 
             if (expanded) {
                 (court.adapter as CourtAdapter).setPlayers(listOf(
-                        Player(Player.Team.AWAY, Player.Position.CENTER, 79, 12),
-                        Player(Player.Team.AWAY, Player.Position.POWER_FORWARD, 13, 39),
-                        Player(Player.Team.AWAY, Player.Position.SMALL_FORWARD, 25, 26),
-                        Player(Player.Team.AWAY, Player.Position.SHOOTING_GUARD, 11, 23),
-                        Player(Player.Team.AWAY, Player.Position.POINT_GUARD, 38, 23),
-                        Player(Player.Team.HOME, Player.Position.CENTER, 53, 49),
-                        Player(Player.Team.HOME, Player.Position.POWER_FORWARD, 27, 1),
-                        Player(Player.Team.HOME, Player.Position.SMALL_FORWARD, 31, 36),
-                        Player(Player.Team.HOME, Player.Position.SHOOTING_GUARD, 82, 48),
-                        Player(Player.Team.HOME, Player.Position.POINT_GUARD, 84, 25)))
+                        Player(Player.Team.AWAY, Player.Position.CENTER),
+                        Player(Player.Team.AWAY, Player.Position.POWER_FORWARD),
+                        Player(Player.Team.AWAY, Player.Position.SMALL_FORWARD),
+                        Player(Player.Team.AWAY, Player.Position.SHOOTING_GUARD),
+                        Player(Player.Team.AWAY, Player.Position.POINT_GUARD),
+                        Player(Player.Team.HOME, Player.Position.CENTER),
+                        Player(Player.Team.HOME, Player.Position.POWER_FORWARD),
+                        Player(Player.Team.HOME, Player.Position.SMALL_FORWARD),
+                        Player(Player.Team.HOME, Player.Position.SHOOTING_GUARD),
+                        Player(Player.Team.HOME, Player.Position.POINT_GUARD)))
             }
         }
     }
