@@ -1,8 +1,18 @@
 # NBACourt
 
-Demo of `android.graphics.Camera` - display a virtual NBA court in 3D. ( ͡° ͜ʖ ͡°)✧
+Demo of `android.graphics.Camera` - display a 3D NBA court ( ͡° ͜ʖ ͡°)✧
 
 ![screenshot.gif](doc/screenshot.gif)
+
+↑↑↑ SEE SCREENSHOT ↑↑↑
+
+
+## How do the camera and court move
+
+![screenshot-debug.gif](doc/screenshot-debug.gif)
+
+↑↑↑ SEE SCREENSHOT ↑↑↑
+
 
 ----
 
