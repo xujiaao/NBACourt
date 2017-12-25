@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">NBACourt</string>
 
+    <string name="action_debug">DEBUG</string>
     <string name="action_expand">CLICK TO EXPAND THE COURT</string>
     <string name="action_collapse">CLICK TO COLLAPSE THE COURT</string>
 </resources>

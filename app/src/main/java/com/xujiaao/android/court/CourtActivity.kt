@@ -31,6 +31,14 @@ class CourtActivity : AppCompatActivity() {
             updateToggle(this)
         }
 
+        val courtDebug = findViewById<CourtDebugView>(R.id.court_debug_view).apply {
+            setCourt(court)
+        }
+
+        findViewById<View>(R.id.debug).setOnClickListener {
+            courtDebug.visibility = if (courtDebug.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
+
         findViewById<View>(R.id.root).setOnClickListener {
             val expanded = !court.isExpanded
             court.setExpanded(expanded, true)
@@ -155,9 +163,9 @@ class CourtActivity : AppCompatActivity() {
             mPosition.text = player.position.abbr
 
             if (player.team == Player.Team.AWAY) {
-                mPosition.setTextColor(ContextCompat.getColor(itemView.context, R.color.home_player))
-            } else {
                 mPosition.setTextColor(ContextCompat.getColor(itemView.context, R.color.away_player))
+            } else {
+                mPosition.setTextColor(ContextCompat.getColor(itemView.context, R.color.home_player))
             }
 
             mLayoutParams.x = player.x.toFloat()

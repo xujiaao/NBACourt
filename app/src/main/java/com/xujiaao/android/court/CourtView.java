@@ -277,6 +277,10 @@ public class CourtView extends ViewGroup {
         return isExpanded() && !isCourtAnimationRunning();
     }
 
+    public CameraState getCameraState() {
+        return mCameraHelper.getCameraState();
+    }
+
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams layoutParams) {
         return layoutParams instanceof LayoutParams;
@@ -349,7 +353,7 @@ public class CourtView extends ViewGroup {
         configureBounds();
 
         final Rect bounds = mCourtBounds;
-        final Matrix matrix = mCameraHelper.getMatrix(1F);
+        final Matrix matrix = mCameraHelper.getMatrix(1F, false);
 
         final int centerX = (right - left + getPaddingLeft() - getPaddingRight()) / 2;
         final int centerY = (bottom - top + getPaddingTop() - getPaddingBottom()) / 2;
@@ -420,7 +424,7 @@ public class CourtView extends ViewGroup {
             final float centerX = (getWidth() + getPaddingLeft() - getPaddingRight()) * .5F;
             final float centerY = (getHeight() + getPaddingTop() - getPaddingBottom()) * .5F;
             canvas.translate(centerX, centerY);
-            canvas.concat(mCameraHelper.getMatrix(mCurrentProgress));
+            canvas.concat(mCameraHelper.getMatrix(mCurrentProgress, true));
 
             court.draw(canvas);
             canvas.restoreToCount(saveCount);
@@ -552,7 +556,7 @@ public class CourtView extends ViewGroup {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // CameraHelper
+    // Camera
     // -----------------------------------------------------------------------------------------------------------------
 
     private static class CameraHelper {
@@ -562,18 +566,15 @@ public class CourtView extends ViewGroup {
         private final Camera mTmpCamera = new Camera();
         private final Matrix mTmpMatrix = new Matrix();
 
-        private final int mDefaultCameraDistance;
+        private final CameraState mCameraState = new CameraState();
 
-        private boolean mDirty;
+        private final int mDefaultCameraDistance;
 
         private int mHeight;
         private float mScaleX;
         private float mScaleY;
 
-        private float mProgress;
-
         CameraHelper() {
-            mDirty = true;
             mDefaultCameraDistance = getDefaultCameraDistance();
         }
 
@@ -593,17 +594,11 @@ public class CourtView extends ViewGroup {
         }
 
         void setHeight(int height) {
-            if (mHeight != height) {
-                mDirty = true;
-                mHeight = height;
-            }
+            mHeight = height;
         }
 
         void setScaleX(float scaleX) {
-            if (mScaleX != scaleX) {
-                mDirty = true;
-                mScaleX = scaleX;
-            }
+            mScaleX = scaleX;
         }
 
         float getScaleX() {
@@ -611,54 +606,61 @@ public class CourtView extends ViewGroup {
         }
 
         void setScaleY(float scaleY) {
-            if (mScaleY != scaleY) {
-                mDirty = true;
-                mScaleY = scaleY;
-            }
+            mScaleY = scaleY;
         }
 
         float getScaleY() {
             return mScaleY;
         }
 
-        Matrix getMatrix(float progress) {
+        Matrix getMatrix(float progress, boolean updateState) {
             final Matrix matrix = mTmpMatrix;
 
-            if (mDirty || mProgress != progress) {
-                final float d = mDefaultCameraDistance;
-                final float h = mHeight;
+            final float d = mDefaultCameraDistance;
+            final float h = mHeight;
 
-                final float sz = d / mScaleX - d;
-                final float ez = sz * (1F - progress);
+            final float sz = d / mScaleX - d;
+            final float ez = sz * (1F - progress);
 
-                final float cy = .5F * ((float) Math.sqrt(h * h - sz * sz) - mScaleY * h) * progress;
-                final float ch = .5F * (float) Math.sqrt(h * h - sz * sz * progress * progress);
+            final float cy = .5F * ((float) Math.sqrt(h * h - sz * sz) - mScaleY * h) * progress;
+            final float ch = .5F * (float) Math.sqrt(h * h - sz * sz * progress * progress);
 
-                final float y1 = cy + ch;
-                final float y2 = cy - ch;
+            final float sy = cy + ch;
+            final float ey = cy - ch;
 
-                final float rotate = (float) (Math.asin((sz - ez) / h) * 180D / Math.PI);
-                final float offset = (2F * d * d * cy + d * (sz * y2 + ez * y1)) / (d * (sz + ez) + sz * ez);
+            final float rotate = (float) (Math.asin((sz - ez) / h) * 180D / Math.PI);
+            final float offset = (2F * d * d * cy + d * (sz * ey + ez * sy)) / (d * (sz + ez) + sz * ez);
 
-                final float ty = .5F * h * (cy + offset) / ch;
-                final float tz = .5F * (ez * (y1 + offset) - sz * (y2 + offset)) / ch;
+            final float ty = .5F * h * (cy + offset) / ch;
+            final float tz = .5F * (ez * (sy + offset) - sz * (ey + offset)) / ch;
 
-                // get matrix.
-                final Camera camera = mTmpCamera;
-                camera.save();
-                camera.translate(0F, 0F, tz);
-                camera.rotateX(rotate);
-                camera.getMatrix(matrix);
-                camera.restore();
+            // get matrix.
+            final Camera camera = mTmpCamera;
+            camera.save();
+            camera.translate(0F, 0F, tz);
+            camera.rotateX(rotate);
+            camera.getMatrix(matrix);
+            camera.restore();
 
-                matrix.preTranslate(0F, -ty);
-                matrix.postTranslate(0F, offset);
+            matrix.preTranslate(0F, -ty);
+            matrix.postTranslate(0F, offset);
 
-                mDirty = false;
-                mProgress = progress;
+            if (updateState) {
+                final CameraState state = mCameraState;
+                state.ready = true;
+                state.cameraY = -offset;
+                state.cameraZ = -d;
+                state.courtStartY = sy;
+                state.courtStartZ = sz;
+                state.courtEndY = ey;
+                state.courtEndZ = ez;
             }
 
             return matrix;
+        }
+
+        CameraState getCameraState() {
+            return mCameraState;
         }
 
         float[] mapPoint(Matrix matrix, float x, float y) {
@@ -669,6 +671,21 @@ public class CourtView extends ViewGroup {
 
             return point;
         }
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static class CameraState {
+
+        public boolean ready;
+
+        public float cameraY;
+        public float cameraZ;
+
+        public float courtStartY;
+        public float courtStartZ;
+
+        public float courtEndY;
+        public float courtEndZ;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -704,7 +721,7 @@ public class CourtView extends ViewGroup {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // On
+    // Listeners
     // -----------------------------------------------------------------------------------------------------------------
 
     public interface OnCourtStateChangedListener {
