@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CourtView">
+        <attr name="court" format="reference|color" />
+        <attr name="courtScaleX" format="float" />
+        <attr name="courtScaleY" format="float" />
+        <attr name="courtInsets" format="dimension" />
+        <attr name="courtInsetLeft" format="dimension" />
+        <attr name="courtInsetTop" format="dimension" />
+        <attr name="courtInsetRight" format="dimension" />
+        <attr name="courtInsetBottom" format="dimension" />
+    </declare-styleable>
+</resources>
